@@ -231,8 +231,8 @@ function generate_html {
   rm -rf "$output_dir"
   mkdir -p "$output_dir/$PLATFORM"
 
-  local llvm_cov_args="-instr-profile=$profdata $objects $LLVM_COV_COMMON_ARGS --show-branches=count --show-expansions"
-  llvm-cov show -format=html -output-dir=$output_dir -Xdemangler rcfilt $llvm_cov_args
+  local llvm_cov_args="-instr-profile=$profdata $objects $LLVM_COV_COMMON_ARGS"
+  llvm-cov show -format=html -output-dir=$output_dir -Xdemangler rcfilt $llvm_cov_args "--show-branches=count --show-expansions"
 
   # Export coverage summary in JSON format.
   local summary_file=$output_dir/$PLATFORM/summary.json
