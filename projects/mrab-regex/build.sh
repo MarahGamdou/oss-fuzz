@@ -1,4 +1,6 @@
 #!/bin/bash -eu
+# Copyright 2022 Google LLC
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,33 +15,10 @@
 #
 ################################################################################
 
-# Copy seed corpus and dictionary.
-mv $SRC/{*.zip,*.dict} $OUT
+# Compile native lib with sanitizers
+python3 setup.py install
 
-
-export MODDABLE=$PWD
-
-FUZZ_TARGETS=(
-  xst
-  xst_jsonparse
-)
-
-REALBIN_PATH=$OUT
-
-# build main target
-cd "$MODDABLE/xs/makefiles/lin"
-FUZZING=1 OSSFUZZ=1 make debug
-
-cd "$MODDABLE"
-cp ./build/bin/lin/debug/xst $REALBIN_PATH/xst
-cp $SRC/xst.options $OUT/
-
-# build jsonparse target
-cd "$MODDABLE/xs/makefiles/lin"
-make -f xst.mk clean
-FUZZING=1 OSSFUZZ=1 OSSFUZZ_JSONPARSE=1 make debug
-
-cd "$MODDABLE"
-cp ./build/bin/lin/debug/xst $REALBIN_PATH/xst_jsonparse
-
-cp $SRC/xst.options $OUT/xst_jsonparse.options
+# Build fuzzers in $OUT.
+for fuzzer in $(find $SRC -name 'fuzz_*.py'); do
+  compile_python_fuzzer $fuzzer
+done
